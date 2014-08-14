@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>svg</title>
+    <script type="text/javascript" src="score.js"></script>
+    <script type="text/javascript" src="snap.svg.min.js"></script>
+
+</head>
+<body bgcolor="black">
+<script type="text/javascript">
+    var snap = Snap(300,80);
+    // Lets create big circle in the middle:
+    //var bigCircle = s.circle(150, 150, 100).rect(50,50,100,100).;
+    // By default its black, lets change its attributes
+
+    var start_time = 0;
+
+    var time_unit = 80;
+
+    var interval;
+
+    var timer;
+    //引数は41個キーのある配列。
+    function draw_atomic (array){
+        snap.clear();
+        var max_value = 99;
+        var bar_kazu = 42;
+        var margin = 3.2;
+        var canvas_width =snap.node.width.baseVal.value;
+        var canvas_height = snap.node.height.baseVal.value;
+        var bar_width = (canvas_width - (bar_kazu - 1) * margin ) / 42;
+        var unit_height = canvas_height / max_value;
+        var i;
+        var rect = [];
+        for(i=0;i<bar_kazu;i++){
+            rect[i] = snap.rect((i-1)*(bar_width+margin),0,bar_width,unit_height * array[i] );
+            rect[i].attr({ fill: color(i/bar_kazu)});
+            rect[i].animate({height:0}, 150, mina.easeout);
+        }
+        console.log();
+    }
+
+
+
+    function draw(){
+        var elapsed_time = new Date() - start_time;
+        current_timer = Math.floor(elapsed_time / time_unit);
+        if( current_timer != timer) {
+            timer = current_timer;
+            draw_atomic(score[timer]);
+            if( undefined === score[timer] ){
+                stop()
+            }
+        }
+    }
+
+
+    function stop(){
+        clearInterval(interval)
+    }
+
+
+    function start(){
+        start_time = new Date();
+        interval = setInterval( draw, 30 );
+    }
+
+
+
+    function color( val ){
+        //color_list = [ "#17365d","#366092","#953734","#76923c","#5f497a","#31859b","#e36c09","#494429","#262626" ];
+        // color_list[number % 9];
+        var rmin = 0;
+        var rmax = 1;
+        var seed;
+        if( val <= rmin ){
+            seed = 0;
+        }else if( val >= rmax ){
+            seed = 0.999;
+        }else{
+            seed = ( val - rmin ) / ( rmax - rmin );
+        }
+        //赤を高くする。青を低くする。
+        //seed = (1-seed)*0.66;
+        var hue = Math.floor( seed*360 );
+        //seedは0to1
+        //hue = 40;
+        var max = 220;
+        var min = 80;
+        if( hue < 60 ){
+            //0で赤
+            var r = max;
+            var g = min + hue * ( max - min ) / 60;
+            var b = min;
+        }else if( hue >= 60 && hue < 120){
+            hue = hue - 60;
+            var r = max - hue * ( max - min ) / 60;
+            var g = max;
+            var b = min;
+        }else if( hue >= 120 && hue < 180){
+            hue = hue - 120;
+            var r = min;
+            var g = max;
+            var b = min + hue * ( max - min ) / 60;
+        }else if( hue >= 180 && hue < 240){
+            hue = hue - 180;
+            var r = min;
+            var g = max - hue * ( max - min ) / 60;
+            var b = max;
+
+        }else if( hue >= 240 && hue < 300){
+            //240で青
+            hue = hue - 240;
+            var r = min + hue * ( max - min ) / 60;
+            var g = min;
+            var b = max;
+
+        }else if( hue >= 300){
+            hue = hue - 300;
+            var r = max;
+            var g = min;
+            var b = max - hue * ( max - min ) / 60;
+        }
+        r = Math.floor(r);
+        g = Math.floor(g);
+        b = Math.floor(b);
+        var c = r*65536+g*256+b;
+        c = "#" + c.toString(16);
+        return c;
+
+
+    }
+
+
+    function c(variable) {
+        console.log(variable);
+    }
+
+</script>
+</body>
+</html>
